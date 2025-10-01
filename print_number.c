@@ -1,17 +1,17 @@
 #include <unistd.h>
-#include "main.h"
+
 /**
-* print_int - prints an integer to stdout
-* @n: the integer to print
-* Return: printed numbers
-*/
-
-int print_int(int n)
-
+ * print_number - prints an integer
+ * @n: integer to print
+ *
+ * Return: number of characters printed
+ */
+int print_number(int n)
 {
-
 	int count = 0;
+
 	char c;
+
 
 	if (n < 0)
 	{
@@ -20,12 +20,12 @@ int print_int(int n)
 		n = -n;
 	}
 
-        if (n >= 10)
-		count += print_int(n / 10);
+	if (n >= 10)
+		count += print_number(n / 10);
 
 	c = (n % 10) + '0';
 	write(1, &c, 1);
 	count++;
 
-	return count;
+	return (count);
 }
