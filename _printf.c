@@ -57,7 +57,7 @@ int handle_specifier(va_list *ap, char sp)
 	if (sp == 'd' || sp == 'i')
 	{
 		int num = va_arg(*ap, int);
-		return (print_int(num));
+		return (print_number(num));
 	}
 
 	if (sp == '%')
