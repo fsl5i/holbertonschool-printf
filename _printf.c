@@ -93,7 +93,9 @@ int handle_specifier(va_list *ap, char sp)
 		return (print_int(va_arg(*ap, int)));
 	if (sp == '%')
 		return (print_char('%'));
-
+        if (sp == 'b')
+              return (print_binary(va_arg(*ap, unsigned int)));
+	
 	/* unknown specifier */
 	if (print_char('%') == -1 || print_char(sp) == -1)
 		return (-1);
