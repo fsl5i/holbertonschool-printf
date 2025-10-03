@@ -95,7 +95,15 @@ int handle_specifier(va_list *ap, char sp)
 		return (print_char('%'));
         if (sp == 'b')
               return (print_binary(va_arg(*ap, unsigned int)));
-	
+	if (sp == 'u')
+            return (print_number_base(va_arg(*ap, unsigned int), 10, 0));
+        if (sp == 'o')
+            return (print_number_base(va_arg(*ap, unsigned int), 8, 0));
+        if (sp == 'x')
+             return (print_number_base(va_arg(*ap, unsigned int), 16, 0));
+        if (sp == 'X')
+         return (print_number_base(va_arg(*ap, unsigned int), 16, 1));
+
 	/* unknown specifier */
 	if (print_char('%') == -1 || print_char(sp) == -1)
 		return (-1);
