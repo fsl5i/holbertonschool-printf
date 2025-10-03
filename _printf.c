@@ -1,4 +1,6 @@
 #include "main.h"
+#include <unistd.h>
+#include <stdarg.h>
 
 /**
  * print_char - prints one char
@@ -34,7 +36,49 @@ int print_string(const char *s)
 }
 
 /**
- * handle_specifier - handles %c, %s, %%
+ * print_int - prints an integer
+ * @n: integer to print
+ * Return: number of characters printed
+ */
+int print_int(int n)
+{
+	int count = 0;
+	char buf[12];
+	int i = 0, j;
+
+	if (n == 0)
+		return (print_char('0'));
+
+	if (n < 0)
+	{
+		if (print_char('-') == -1)
+			return (-1);
+		count++;
+		if (n == -2147483648) /* INT_MIN */
+		{
+			if (print_string("2147483648") == -1)
+				return (-1);
+			return (count + 10);
+		}
+		n = -n;
+	}
+
+	while (n > 0)
+	{
+		buf[i++] = (n % 10) + '0';
+		n /= 10;
+	}
+	for (j = i - 1; j >= 0; j--)
+	{
+		if (print_char(buf[j]) == -1)
+			return (-1);
+		count++;
+	}
+	return (count);
+}
+
+/**
+ * handle_specifier - handles %c, %s, %d, %i, %%
  * @ap: va_list pointer
  * @sp: specifier
  * Return: chars printed, -1 on error
@@ -42,53 +86,18 @@ int print_string(const char *s)
 int handle_specifier(va_list *ap, char sp)
 {
 	if (sp == 'c')
-	{
-		char c = (char)va_arg(*ap, int);
-
-		return (print_char(c));
-	}
+		return (print_char((char)va_arg(*ap, int)));
 	if (sp == 's')
-	{
-		char *str = va_arg(*ap, char *);
-
-		return (print_string(str));
-	}
+		return (print_string(va_arg(*ap, char *)));
 	if (sp == 'd' || sp == 'i')
-	{
-		int num = va_arg(*ap, int);
-		return (print_number(num));
-	}
-
+		return (print_int(va_arg(*ap, int)));
 	if (sp == '%')
 		return (print_char('%'));
 
-	/* unknown specifier, just print it */
-	if (print_char('%') == -1)
-		return (-1);
-	if (print_char(sp) == -1)
+	/* unknown specifier */
+	if (print_char('%') == -1 || print_char(sp) == -1)
 		return (-1);
 	return (2);
-}
-
-/**
- * process_percent - processes a % sequence starting at format[*i]
- * @format: format string
- * @i: index (will be advanced)
- * @ap: va_list pointer
- * Return: chars printed, or -1 on error
- */
-static int process_percent(const char *format, int *i, va_list *ap)
-{
-	int r;
-
-	(*i)++;
-	if (format[*i] == '\0')
-		return (-1);
-	r = handle_specifier(ap, format[*i]);
-	if (r == -1)
-		return (-1);
-	(*i)++;
-	return (r);
 }
 
 /**
@@ -118,13 +127,17 @@ int _printf(const char *format, ...)
 			i++;
 			continue;
 		}
-		r = process_percent(format, &i, &ap);
+		i++;
+		if (format[i] == '\0')
+			return (-1);
+		r = handle_specifier(&ap, format[i]);
 		if (r == -1)
 		{
 			va_end(ap);
 			return (-1);
 		}
 		total += r;
+		i++;
 	}
 	va_end(ap);
 	return (total);
